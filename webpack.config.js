@@ -1,9 +1,14 @@
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
 const appDirectory = path.resolve(__dirname);
-const {presets} = require(`${appDirectory}/babel.config.js`);
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const env = process.env.NODE_ENV;
+const mode = env !== 'production' ? 'development' : 'production';
+const devtool = false; // env !== 'production' ? 'eval-source-map' : 'inline-source-map';
+const buildPath = path.resolve(appDirectory, 'dist');
+//const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin; # for debugging
+
+const { presets } = require(`${appDirectory}/babel.config.js`);
 
 const compileNodeModules = [
   // Add every react-native package that needs compiling
@@ -49,13 +54,18 @@ const imageLoaderConfiguration = {
 };
 
 module.exports = {
+  context: __dirname,
+  mode,
+  devtool,
   entry: {
     app: path.join(__dirname, 'index.web.js'),
   },
   output: {
-    path: path.resolve(appDirectory, 'dist'),
+    path: buildPath,
     publicPath: '',
-    filename: 'app.bundle.js',
+    filename: 'static/js/[name].[contenthash].js',
+    chunkFilename: 'static/js/[name].[contenthash].js',
+    clean: true,
   },
   resolve: {
     extensions: ['.web.tsx', '.web.ts', '.tsx', '.ts', '.web.js', '.js'],
@@ -73,11 +83,35 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'public/index.html'),
+      title: 'Caching',
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       // See: https://github.com/necolas/react-native-web/issues/349
       __DEV__: JSON.stringify(true),
     }),
+    // new BundleAnalyzerPlugin(), # Analyze bundle size
   ],
+  performance: {
+    hints: false
+  },
+  optimization: {
+    moduleIds: 'deterministic',
+    mergeDuplicateChunks: true,
+    minimize: true,
+    removeEmptyChunks: true,
+    concatenateModules: true,
+    runtimeChunk: 'single',
+    splitChunks: { 
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
 };
+
