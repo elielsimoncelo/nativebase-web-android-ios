@@ -1,64 +1,91 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native'
-import { HamburgerIcon, SunIcon, AddIcon, SearchIcon, VStack, HStack, IconButton, Text, NativeBaseProvider, Box, StatusBar } from "native-base";
+import * as React from 'react';
+import { Button, NativeBaseProvider, ArrowBackIcon, View } from 'native-base';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-function AppBar() {
-  return <>
-    <StatusBar backgroundColor="#3700B3" barStyle="light-content" />
-    <Box safeAreaTop bg="#6200ee" />
-    <HStack bg="#6200ee" px="1" py="3" justifyContent="space-between" alignItems="center" w="100%">
-      <HStack alignItems="center">
-        <IconButton icon={<SunIcon size="sm" name="menu" color="white" />} />
-        <Text color="white" fontSize="20" fontWeight="bold">
-          Home
-        </Text>
-      </HStack>
-      <HStack>
-        <IconButton icon={<SearchIcon size="sm" color="white" />} />
-        <IconButton icon={<AddIcon name="search" size="sm" color="white" />} />
-        <IconButton icon={<HamburgerIcon name="more-vert" size="sm" color="white" />} />
-      </HStack>
-    </HStack>
-  </>;
+function HomeScreen({ navigation }) {
+    return (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'orange' }}>
+            <Button
+                title="Go to Profile"
+                onPress={() => navigation.navigate('Profile')}>Go to Profile</Button>
+        </View>
+    );
 }
 
-const App: React.FC = () => {
-  const [count, setCount] = useState(0);
-
-  return (
-    <NativeBaseProvider>
-      <AppBar />
-      <View style={styles.container}>
-        <VStack>
-          <Text fontSize="4xl">Hello from {'\n'}React Native Web! Jose</Text>
-        </VStack>
-        <TouchableOpacity
-          onPress={() => setCount(count + 1)}
-          style={styles.button}>
-          <Text>Click me!</Text>
-        </TouchableOpacity>
-        <Text>You clicked {count} times!</Text>
-      </View>
-    </NativeBaseProvider>
-  );
+function ProfileScreen({ navigation }) {
+    return (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Button
+                title="Go to Notifications"
+                onPress={() => navigation.navigate('Notifications')}>Go to Notifications</Button>
+            <Button title="Go back" onPress={() => navigation.goBack()}>Go back</Button>
+        </View>
+    );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#C3E8BD',
-    paddingTop: 40,
-    paddingHorizontal: 10,
-  },
-  button: {
-    backgroundColor: '#ADBDFF',
-    padding: 5,
-    marginVertical: 20,
-    alignSelf: 'flex-start',
-  },
-  title: {
-    fontSize: 40,
-  },
-});
+function NotificationsScreen({ navigation }) {
+    return (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Button
+                title="Go to Settings"
+                onPress={() => navigation.navigate('Settings')}>Go to Settings</Button>
+            <Button title="Go back" onPress={() => navigation.goBack()}>Go back</Button>
+        </View>
+    );
+}
 
-export default App;
+function SettingsScreen({ navigation }) {
+    return (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Button title="Go back" onPress={() => navigation.goBack()}>Go back</Button>
+        </View>
+    );
+}
+
+const Stack = createStackNavigator();
+
+function MyStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="Notifications" component={NotificationsScreen}
+                options={({ navigation }) => ({
+                    headerLeft: () => (
+                        <Button variant="link" bg="#fff" onPress={() => navigation.goBack()}>
+                            <ArrowBackIcon size="5" mt="0.5" color="black" />
+                        </Button>                    
+                    ),
+                })}
+            />
+            <Stack.Screen name="Profile" component={ProfileScreen}
+                options={({ navigation }) => ({
+                    headerLeft: () => (
+                        <Button variant="link" bg="#fff" onPress={() => navigation.goBack()}>
+                            <ArrowBackIcon size="5" mt="0.5" color="black" />
+                        </Button>                    
+                    ),
+                })}
+            />
+            <Stack.Screen name="Settings" component={SettingsScreen} 
+                options={({ navigation }) => ({
+                    headerLeft: () => (
+                        <Button variant="link" bg="#fff" onPress={() => navigation.goBack()}>
+                            <ArrowBackIcon size="5" mt="0.5" color="black" />
+                        </Button>                    
+                    ),
+                })}
+            />
+        </Stack.Navigator>
+    );
+}
+
+export default function App() {
+    return (
+        <NativeBaseProvider>
+            <NavigationContainer>
+                <MyStack />
+            </NavigationContainer>
+        </NativeBaseProvider>
+    );
+}
